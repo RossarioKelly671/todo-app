@@ -7,6 +7,7 @@ use App\Models\Task\Enum\TaskPriorityEnum;
 use App\Models\Task\Enum\TaskStatusEnum;
 use App\Models\User;
 use App\Sorts\HasSortableColumn;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,8 +24,6 @@ class Task extends Model
 
     protected $casts = [
         'due_date' => 'datetime',
-        'status' => TaskStatusEnum::class,
-        'priority' => TaskPriorityEnum::class,
     ];
 
     public function owner(): BelongsTo
@@ -32,5 +31,18 @@ class Task extends Model
         return $this->belongsTo(User::class);
     }
 
+    protected function status(): Attribute
+    {
+        return Attribute::get(
+            fn ($value) => TaskStatusEnum::from($this->attributes['status'] ?? $value)
+        );
+    }
+
+    protected function priority(): Attribute
+    {
+        return Attribute::get(
+            fn ($value) => TaskPriorityEnum::from($this->attributes['priority'] ?? $value)
+        );
+    }
 
 }
